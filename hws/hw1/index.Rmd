@@ -1,0 +1,103 @@
+---
+title: "Homework 1"
+author: "Aleksei Parm"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    code_folding: show
+---
+
+```{r, include = FALSE}
+#setwd("~/University/monte-carlo/hws/hw1") #set working directory
+```
+
+
+
+# Lineaarne kongruentne generaator (LKG)
+
+(ingl [_Linear congruential generator (LCG)_](https://en.wikipedia.org/wiki/Linear_congruential_generator))
+
+```{r}
+LKG <- function(n, seeme, a, b, m){
+  tulemus <- rep(NA, n)
+  tulemus[1] <- (a * seeme + b) %% m
+  if(n > 1) {
+    for (i in 1:(n - 1)){
+      tulemus[i+1] <- (a * tulemus[i] + b) %% m
+    }
+  }
+  return(tulemus/m)
+}
+```
+
+
+## RANDU
+
+[RANDU](https://en.wikipedia.org/wiki/RANDU) generaator on LKG parameetritega:
+
+- a = 65539
+- b = 0
+- m = 2^31^
+
+> tegelikult väga halb generaator
+
+
+```{r}
+RANDU <- function(n){
+  return(LKG(n, 1, 65539, 0, 2^31))
+}
+```
+
+
+
+# Ülesanne
+
+Vaatleme juhuslikku suurust Y = (X + 2)^2^, kus X on ühtlase jaotusega lõigus [0, 1].
+
+
+Suurte arvude seaduse kohaselt peaks ühtlasele jaotusele vastavate juhuslike arvude x~1~, x~2~, ... korral  
+arvude y~i~ = (x~i~ + 2)^2^ , i = 1, 2, ... aritmeetiline keskmine lähenema n kasvades juhusliku suuruse Y keskväärtusele.
+
+
+
+Leidke ligikaudselt juhusliku suuruse Y keskväärtus, kasutades juhuslike arvude asemel 10000 RANDU generaatoriga (enda valitud seemnest lähtuvalt) tekitatud pseudojuhuslikku arvu.
+
+```{r}
+n <- 10000
+X <- RANDU(n)
+
+Y <- (X + 2)^2
+EY <- mean(Y)
+EY
+```
+
+<br>
+
+
+Arvutage ka täpne keskväärtus EY (selgitades, mida selleks teha tuleb) ning leidke eelnevalt saadud ligikaudse keskväärtuse viga.
+
+$$EX = \int_{-\infty}^\infty xf(x) ~dx$$
+
+$$EY = E((X+2)^2)$$
+
+
+Kui tihedusfunktsioon f(x) = 1, 0 ≤ x ≤ 1 korral ja f(x) = 0 mujal:
+
+$$EY = \int_0^1 (x+2)^2 ~dx = \int_0^1 (x^2 + 4x + 4) ~dx = (\frac{x^3}{3} + 4\frac{x^2}{2} + 4x)\bigg|_0^1$$
+
+
+```{r}
+a <- 0
+b <- 1
+EY2 <- (b^3/3 + 4*b^2/2 + 4*b) - (a^3/3 + 4*a^2/2 + 4*a)
+EY2
+EY - EY2
+```
+
+
+
+NB! täpse keskväärtuse leidmiseks tuleb leida keskväärtusele vastava integraali väärtus valemi kujul ning alles seejärel välja arvutada valemile vastav väärtus, numbrilise integreerimise vahendid (nt käsk integrate) ei sobi siin kursuses täpse väärtuse leidmiseks!
+
+
+
+
