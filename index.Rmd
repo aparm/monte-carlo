@@ -1,0 +1,29 @@
+---
+title: "Monte-Carlo Methods"
+author: "Aleksei Parm"
+date: "`r Sys.Date()`"
+output: rmdformats::downcute
+---
+
+
+# About
+
+Monte-Carlo Methods course at University of Tartu (in Estonian)
+
+
+# Homeworks
+
+
+## Homework 1
+
+LCG, RANDU, EX
+
+[Homework 1 page](hws/hw1/index.html)
+
+
+## Homework 2
+
+
+## Homework 3
+
+
