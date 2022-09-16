@@ -23,6 +23,8 @@ LCG, RANDU, EX
 
 ## Homework 2
 
+[Homework 2 page](hws/hw2/index.html)
+
 
 ## Homework 3
 

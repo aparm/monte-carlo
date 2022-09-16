@@ -1,0 +1,78 @@
+---
+title: "Homework 2"
+author: "Aleksei Parm"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    code_folding: show
+---
+
+```{r, include = FALSE}
+#setwd("~/University/monte-carlo/hws/hw2") #set working directory
+```
+
+
+
+
+
+# Ülesanne 2.1
+
+Defineeri funktsioon, mis etteantud kahekomponedilisest seemnest (x~0~, x~1~) ja
+positiivsest täisarvust n lähtuvalt genereeriks n pseudojuhuslikku arvu vastavalt valemile u~i−1~ = x~i~ / 2^30^ , i = 2, ... , n + 1,  
+kus arvud x~i~ leitakse vastavalt valemile x~i~ = (5 * (x~i−1~)^2^ + 171 * x~i−2~ + 3) mod 2^30^
+
+```{r, generaator}
+generaator <- function(x0, x1, n) {
+  u <- rep(NA, n)
+  
+  xim1 <- x1
+  xim2 <- x0
+  
+  for (i in 2:(n+1)) {
+    xi <- (5 * xim1^2 + 171 * xim2 + 3) %% 2^30
+    u[i-1] <- xi / 2^30
+    
+    xim2 <- xim1
+    xim1 <- xi
+  }
+  
+  return(u)
+}
+```
+
+<br>
+
+Kontrolli n=10000 ja seemne (1974, 42) korral, kas sündmuse 0.2 ≤ U ≤ 0.3 toimumine on kooskõlas ühtlase jaotuse eeldusega.
+
+```{r}
+n <- 10000
+u <- generaator(1974, 42, n)
+```
+
+<br>
+
+Fikseerime sündmuse A = {0.2 ≤ U ≤ 0.3}.
+Sündmuse A toimumiste arv n sõltumatu katse jooksul (N_A).
+
+```{r}
+N_A = sum((u >= 0.2) * (u <= 0.3))
+N_A
+```
+
+<br>
+
+N_A on binoomjaotusega parameetritega n ja p, kus p on sündmuse A toimumise tõenäosus ühel katsel.
+Antud juhul on p lõigu [0.2; 0.3] pikkus ehk 0.1.
+Kvantiili definitsioonist tulenevalt peaks juhuslik suurus oma 2,5% ja 97,5% kvantiilide vahele jääma 95% tõenäosusega.
+
+```{r}
+ülempiir <- qbinom(0.975, n, 0.1)
+alampiir <- qbinom(0.025, n, 0.1)
+c(alampiir,ülempiir)
+
+(N_A >= alampiir) && (N_A <= ülempiir)
+```
+
+
+
+
