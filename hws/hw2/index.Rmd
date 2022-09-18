@@ -71,6 +71,79 @@ c(alampiir,ülempiir)
 ```
 
 
+<br>
+
+Päris juhuslike katsete korral peaks leitud arv jääma tõenäosusega 0.05 ka piiridest välja.
+
+Korda katset 200 korda (n = 1000, võtteks esimeseks seemneks (1974, 42) ja järgmistel kordadel viimasest generaatori väljastatud arvudele u~n~ ja u~n-1~ vastav x~n~ ja x~n-1~) ning leia, mitu korda jäi leitud tulemus piiridest välja.
+
+```{r}
+kordi <- 200
+n <- 1000
+
+x0 <- 1974
+x1 <- 42
+
+#uued alampiir ja ülempiir (n = 1000)
+ülempiir <- qbinom(0.975, n, 0.1)
+alampiir <- qbinom(0.025, n, 0.1)
+
+väljas <- 0
+
+for(i in 1:200) {
+  u <- generaator(x0, x1, n)
+  N_A <- sum((u >= 0.2) * (u <= 0.3))
+  
+  if(N_A > ülempiir | N_A < alampiir) {
+    väljas <- väljas + 1
+  }
+  
+  x0 <- round(2^30 * u[n - 1])
+  x1 <- round(2^30 * u[n])
+}
+
+väljas
+```
+
+<br>
+
+Kordade arv 200 katse seast, millel N_A jääb kvantiilide vahemikust välja, on ka omakorda binoomjaotusega parameetritega n = 200 (see on katsete arv) ja p = 0.05 
+(kvantiili definitsioonist tulenevalt peaks juhuslik suurus oma 2.5% ja 97.5% kvantiilide vahelt välja jääma 5% tõenäosusega).
+
+Selle binoomjaotuse keskväärtus on np = 200 · 0, 05 = 10. Seega oodatavalt võiks 200-st katsest N_A jääda kvantiilide vahemikust välja 10 korda.
+
+```{r}
+vahe <- abs(väljas - 10)
+vahe
+```
+
+Praegu jäi suurus N_A kvantiilide vahemikust välja 9 korral. See erineb oodatavast välja jäämiste arvust 1 võrra.
+
+<br>
+
+Kui suur on tõenäosus, et see kordade arv erineks oodatavast väljajäämiste arvust vähemalt niipalju, kui praguse katse tulemus näitas?
+
+**P**(N_A erineb oodatavast tulemusest 10 vähemalt sama palju kui meie konkreetne tulemus 9)  
+= **P**(|N_A − 10| ⩾ vahe)  
+= **P**(10 − vahe ⩾ N_A ⩾ 10 + vahe)  
+= **P**({N_A ⩽ 10 − vahe} ∪ {N_A > 10 + vahe − 1})  
+= **P**({N_A ⩽ 10 − vahe}) + 1 − **P**({N_A ⩽ 9 + vahe})  
+= **F~N_A~** (10 − vahe) + 1 − **F~N_A~** (9 + vahe)  
+= **F~N_A~** (9) + 1 − **F~N_A~** (10)
+
+Kuna N_A ∼ B(200; 0.05), siis saame F~N_A~ arvutamisel kasutada R funktsiooni pbinom (binoomjaotuse jaotusfunktsioon).
+
+```{r}
+if(vahe != 0){
+  pbinom(10 - vahe, kordi, 0.05) + (1 - pbinom(9 + vahe, kordi, 0.05))
+} else {1}
+```
+Tõenäosus, et see kordade arv erineks oodatavast väljajäämiste arvust vähemalt niipalju, kui praguse katse tulemus näitas, on ~0.87.
+
+
+<br>
+
+
 # Ülesanne 2.2
 
 Kirjuta Wichmann-Hilli generaator R funktsioonina, mis võtaks argumentideks arvu, mitu juhuslikku suurust on vaja teha, ja seemne (3 arvu).

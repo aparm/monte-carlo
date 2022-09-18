@@ -1655,6 +1655,78 @@ c(alampiir,ülempiir)</code></pre>
 <pre><code>## [1]  942 1059</code></pre>
 <pre class="r"><code>(N_A &gt;= alampiir) &amp;&amp; (N_A &lt;= ülempiir)</code></pre>
 <pre><code>## [1] TRUE</code></pre>
+<p><br></p>
+<p>Päris juhuslike katsete korral peaks leitud arv jääma tõenäosusega
+0.05 ka piiridest välja.</p>
+<p>Korda katset 200 korda (n = 1000, võtteks esimeseks seemneks (1974,
+42) ja järgmistel kordadel viimasest generaatori väljastatud arvudele
+u<sub>n</sub> ja u<sub>n-1</sub> vastav x<sub>n</sub> ja
+x<sub>n-1</sub>) ning leia, mitu korda jäi leitud tulemus piiridest
+välja.</p>
+<pre class="r"><code>kordi &lt;- 200
+n &lt;- 1000
+
+x0 &lt;- 1974
+x1 &lt;- 42
+
+#uued alampiir ja ülempiir (n = 1000)
+ülempiir &lt;- qbinom(0.975, n, 0.1)
+alampiir &lt;- qbinom(0.025, n, 0.1)
+
+väljas &lt;- 0
+
+for(i in 1:200) {
+  u &lt;- generaator(x0, x1, n)
+  N_A &lt;- sum((u &gt;= 0.2) * (u &lt;= 0.3))
+  
+  if(N_A &gt; ülempiir | N_A &lt; alampiir) {
+    väljas &lt;- väljas + 1
+  }
+  
+  x0 &lt;- round(2^30 * u[n - 1])
+  x1 &lt;- round(2^30 * u[n])
+}
+
+väljas</code></pre>
+<pre><code>## [1] 9</code></pre>
+<p><br></p>
+<p>Kordade arv 200 katse seast, millel N_A jääb kvantiilide vahemikust
+välja, on ka omakorda binoomjaotusega parameetritega n = 200 (see on
+katsete arv) ja p = 0.05 (kvantiili definitsioonist tulenevalt peaks
+juhuslik suurus oma 2.5% ja 97.5% kvantiilide vahelt välja jääma 5%
+tõenäosusega).</p>
+<p>Selle binoomjaotuse keskväärtus on np = 200 · 0, 05 = 10. Seega
+oodatavalt võiks 200-st katsest N_A jääda kvantiilide vahemikust välja
+10 korda.</p>
+<pre class="r"><code>vahe &lt;- abs(väljas - 10)
+vahe</code></pre>
+<pre><code>## [1] 1</code></pre>
+<p>Praegu jäi suurus N_A kvantiilide vahemikust välja 9 korral. See
+erineb oodatavast välja jäämiste arvust 1 võrra.</p>
+<p><br></p>
+<p>Kui suur on tõenäosus, et see kordade arv erineks oodatavast
+väljajäämiste arvust vähemalt niipalju, kui praguse katse tulemus
+näitas?</p>
+<p><strong>P</strong>(N_A erineb oodatavast tulemusest 10 vähemalt sama
+palju kui meie konkreetne tulemus 9)<br />
+= <strong>P</strong>(|N_A − 10| ⩾ vahe)<br />
+= <strong>P</strong>(10 − vahe ⩾ N_A ⩾ 10 + vahe)<br />
+= <strong>P</strong>({N_A ⩽ 10 − vahe} ∪ {N_A &gt; 10 + vahe − 1})<br />
+= <strong>P</strong>({N_A ⩽ 10 − vahe}) + 1 − <strong>P</strong>({N_A ⩽
+9 + vahe})<br />
+= <strong>F<sub>N_A</sub></strong> (10 − vahe) + 1 −
+<strong>F<sub>N_A</sub></strong> (9 + vahe)<br />
+= <strong>F<sub>N_A</sub></strong> (9) + 1 −
+<strong>F<sub>N_A</sub></strong> (10)</p>
+<p>Kuna N_A ∼ B(200; 0.05), siis saame F<sub>N_A</sub> arvutamisel
+kasutada R funktsiooni pbinom (binoomjaotuse jaotusfunktsioon).</p>
+<pre class="r"><code>if(vahe != 0){
+  pbinom(10 - vahe, kordi, 0.05) + (1 - pbinom(9 + vahe, kordi, 0.05))
+} else {1}</code></pre>
+<pre><code>## [1] 0.8716426</code></pre>
+<p>Tõenäosus, et see kordade arv erineks oodatavast väljajäämiste arvust
+vähemalt niipalju, kui praguse katse tulemus näitas, on ~0.87.</p>
+<p><br></p>
 </div>
 <div id="ülesanne-2.2" class="section level1">
 <h1>Ülesanne 2.2</h1>
