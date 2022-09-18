@@ -12,9 +12,6 @@ output:
 ```
 
 
-
-
-
 # Ülesanne 2.1
 
 Defineeri funktsioon, mis etteantud kahekomponedilisest seemnest (x~0~, x~1~) ja
@@ -74,5 +71,94 @@ c(alampiir,ülempiir)
 ```
 
 
+# Ülesanne 2.2
 
+Kirjuta Wichmann-Hilli generaator R funktsioonina, mis võtaks argumentideks arvu, mitu juhuslikku suurust on vaja teha, ja seemne (3 arvu).
 
+```{r}
+WH_generaator <- function(n, xi, yi, zi) {
+  tulemus <- rep(NA, n)
+  for (i in 1:(n)) {
+    xi <- (171 * xi) %% 30269 
+    yi <- (172 * yi) %% 30307
+    zi <- (170 * zi) %% 30323
+    tulemus[i] <- (xi/30269 + yi/30307 + zi/30323) %% 1
+  }
+  return(tulemus)
+}
+```
+
+<br>
+
+Genereeri selle generaatoriga 1000 pseudojuhuslikku arvu,
+lähtudes seemnest (x0, y0, z0) = (166, 9, 32) ning kirjeldada joonisel nende arvude sattumist vahemikesse [0, 0.3), [0.3, 0.8), [0.8, 1).
+
+Samal joonisel kujutada teoreetilised 0.05 ja 0.95 kvantiilid (mis on iga vahemiku jaoks erinevad). Kommenteeri tulemust - kas see katse tekitab mingeid kahtluseid generaatori korrektsuse osas või mitte.
+
+```{r}
+n <- 1000
+u <- WH_generaator(n, 166, 9, 32)
+```
+
+<br>
+
+Teoreetilised kvantiilid [0, 0.3) vahemiku jaoks.
+
+```{r}
+x1 <- c(0, 0.3)
+alampiir1 <- qbinom(0.05, n, 0.3)
+ülempiir1 <- qbinom(0.95, n, 0.3)
+y1a <- c(alampiir1, alampiir1)
+y1ü <- c(ülempiir1, ülempiir1)
+
+c(alampiir1, ülempiir1)
+```
+
+<br>
+
+Teoreetilised kvantiilid [0.3, 0.8) vahemiku jaoks.
+
+```{r}
+x2 <- c(0.3, 0.8)
+alampiir2 <- qbinom(0.05, n, 0.8 - 0.3)
+ülempiir2 <- qbinom(0.95, n, 0.8 - 0.3)
+y2a <- c(alampiir2, alampiir2)
+y2ü <- c(ülempiir2, ülempiir2)
+
+c(alampiir2, ülempiir2)
+```
+
+<br>
+
+Teoreetilised kvantiilid [0.8, 1) vahemiku jaoks.
+
+```{r}
+x3 <- c(0.8, 1)
+alampiir3 <- qbinom(0.05, n, 1 - 0.8)
+ülempiir3 <- qbinom(0.95, n, 1 - 0.8)
+y3a <- c(alampiir3, alampiir3)
+y3ü <- c(ülempiir3, ülempiir3)
+
+c(alampiir3, ülempiir3)
+```
+
+<br>
+
+Histogramm ja teoreetilised 0.05 ja 0.95 kvantiilid samal joonisel.
+
+```{r warning=FALSE}
+hist(u, breaks = c(0, 0.3, 0.8, 1), ylim = c(0, 600), freq = TRUE)
+
+lines(x1, y1a, col = "red", lty = 3)
+lines(x1, y1ü, col = "red", lty = 3)
+
+lines(x2, y2a, col = "red", lty = 3)
+lines(x2, y2ü, col = "red", lty = 3)
+
+lines(x3, y3a, col = "red", lty = 3)
+lines(x3, y3ü, col = "red", lty = 3)
+```
+
+See katse tekitab kahtluseid generaatori korrektsuse osas, kuna graafikul näeme et esimeses vahemikus on vähem arve, kui näitab 0.05 kvantiil.
+
+Aga me ei saa öelda, kas see geraator on hea või mitte, sest juhuslik suurus peab oma 0.05 ja 0.95 kvantiilide vahelt välja jääma 10% tõenäosusega. Järelikult on vaja rohkem katseid.
