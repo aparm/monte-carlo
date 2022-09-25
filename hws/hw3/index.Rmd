@@ -1,0 +1,107 @@
+---
+title: "Homework 3"
+author: "Aleksei Parm"
+date: '`r Sys.Date()`'
+output:
+  rmdformats::downcute:
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+library(gmp) #for as.bigz()
+```
+
+
+# LKG
+
+Tekita lineaarse kongruentse generaatoriga parameetritega a = 5122456, b = 0, m = 1073741789 seemnest x~0~ = 777 lähtudes n = 50000 pseudojuhuslikku arvu u~1~, ... , u~50000~ ühtlasest jaotusest U(0, 1).
+
+Järgnevates küsimustes kasuta hüpoteeside kontrollimiseks olulisuse nivood α = 0.1.
+
+```{r}
+LKG <- function(n, seeme = 777, a = 5122456, b = 0, m = 1073741789){
+  tulem = rep(NA, n)
+  tulem[1] <- as.numeric((as.bigz(a) * seeme + b) %% m)
+  for(i in 1:(n - 1)){
+    tulem[i + 1] <- as.numeric((as.bigz(a) * tulem[i] + b) %% m)
+  }
+  return(tulem / m)
+}
+
+n <- 50000
+
+u <- LKG(n)
+
+#library(gmp) for as.bigz()
+```
+
+
+# Hii-ruut test (Chi-squared test)
+
+Kasuta χ^2^-testi selleks, et kontrollida, kas piirkondadesse (−∞, 0.1], (0.1, 0.2], (0.2, 0.3], (0.3, 0.4], (0.4, ∞] sattunud katsetulemuste u~i~, i = 1, ... , 50000 arv võib vastata ühtlase jaotuse U(0, 1) eeldustele.
+
+Testi tulemus salvesta muutujasse test1 (st kasuta testi kujul test1 <- chisq.test(...) )
+ning oma järeldus muutujasse vastus1 kujul vastus1 <- "Võivad olla ühtlase jaotusega" või vastus1 <- "Ei ole ühtlase jaotusega".
+
+```{r}
+# tekitame vektor jaotuspunktidest
+c_vektor = c(-Inf, 0.1, 0.2, 0.3, 0.4, Inf)
+
+# tõenäosuste vektor
+p <- c(0.1, 0.1, 0.1, 0.1, 0.6)
+
+
+sildistatud_u <- cut(u, c_vektor)
+
+test1 <- chisq.test(table(sildistatud_u), p = p)
+test1
+
+# p-value = 0.975 > 0.1
+vastus1 <- 'Võivad olla ühtlase jaotusega'
+```
+
+
+# Kolmogorov-Smirnovi test
+
+Kasuta Kolmogorov-Smirnovi testi selleks, et kontrollida, kas arvud x~i~ = 4 * u~i~, i = 1, ... , 50000 võiksid sobida pseudojuhuslikeks arvudeks jaotusest U(0, 4).
+
+Testi tulemus salvesta muutujasse test2 ja oma järeldus tekstiga "Võivad sobida" või "Ei sobi" muutujasse vastus2.
+
+```{r}
+x <- u * 4
+
+test2 <- ks.test(x, punif, 0, 4)
+test2
+
+# p-value = 0.4701 > 0.1
+vastus2 <- 'Võivad sobida'
+```
+
+
+# Sõltumatute paaride test
+
+Kasuta sõltumatute paaride testi piirkondadele (−∞, 0.4], (0.4, 1.2], (1.2, 1.6], (1.6, 2], (2, 2.8], (2.8, ∞] vastavate sündmustega, et teha kindlaks, kas arvud x~i~ võivad vastata jaotusega U(0, 4) juhusliku suuruse sõltumatutest katsetest pärinevatele tulemustele.
+
+Kasutatud testi tulemus salvestage muutujasse test3 ja oma järeldus tekstiga "Võivad olla sõltumatud väärtused vaadeldavast jaotusest" või "Ei ole sõltumatud väärtused vaadeldavast jaotusest" muutujasse vastus3.
+
+
+```{r}
+c_vektor = c(-Inf, 0.4, 1.2, 1.6, 2, 2.8, Inf)
+p <- c(0.1, 0.2, 0.1, 0.1, 0.2, 0.3)
+
+sildistatud_x <- cut(x, c_vektor)
+
+
+n <- length(sildistatud_x)
+esimene <- sildistatud_x[seq(1, n, by = 2)]
+teine <- sildistatud_x[seq(2, n, by = 2)]
+tabel <- table(esimene, teine)
+ptabel <- p %o% p
+
+
+test3 <- chisq.test(c(tabel), p = c(ptabel))
+test3
+
+# p-value = 0.04426 < 0.1
+vastus3 <- 'Ei ole sõltumatud väärtused vaadeldavast jaotusest'
+```

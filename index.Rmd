@@ -28,4 +28,7 @@ LCG, RANDU, EX
 
 ## Homework 3
 
+Hii-ruut test (Chi-squared test), Kolmogorov-Smirnovi test, Sõltumatute paaride test
+
+[Homework 3 page](hws/hw3/index.html)
 
