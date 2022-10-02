@@ -32,3 +32,10 @@ Hii-ruut test (Chi-squared test), Kolmogorov-Smirnovi test, Sõltumatute paaride
 
 [Homework 3 page](hws/hw3/index.html)
 
+
+## Homework 4
+
+Etteantud jaotusega pseudojuhuslike arvude genereerimine jaotusfunktsiooni pööramise meetodil, Cramer-von Mises test, Seeriate test sõltumatuse kontrollimiseks
+
+[Homework 4 page](hws/hw4/index.html)
+
